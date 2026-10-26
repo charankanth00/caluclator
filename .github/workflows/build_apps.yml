@@ -1,4 +1,4 @@
-name: Build Android, iOS, and iPhone Web App
+name: Build Android and iPhone App
 
 on:
   push:
@@ -25,18 +25,19 @@ jobs:
           name: Android-APK
           path: build/app/outputs/flutter-apk/app-release.apk
 
-  build_ios_web_installer:
+  deploy_iphone_webapp:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-      - run: flutter config --enable-web
       - run: flutter pub get
-      - run: flutter build web --release --base-href "/calculator/"
+      - run: flutter build web --release --base-href "/caluclator/" --pwa-strategy=none
+      - run: touch build/web/.nojekyll
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build/web
+          force_orphan: true
