@@ -34,7 +34,7 @@ jobs:
           channel: 'stable'
       - run: flutter config --enable-web
       - run: flutter pub get
-      - run: flutter build web --release --base-href "/nova-calculator/"
+      - run: flutter build web --release --base-href "/calculator/"
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
