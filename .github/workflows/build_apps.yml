@@ -1,9 +1,14 @@
-name: Build Android APK and iOS IPA
+name: Build Android, iOS, and iPhone Web App
 
 on:
   push:
     branches: [ main, master ]
   workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
 
 jobs:
   build_android:
@@ -20,22 +25,18 @@ jobs:
           name: Android-APK
           path: build/app/outputs/flutter-apk/app-release.apk
 
-  build_ios:
-    runs-on: macos-latest
+  build_ios_web_installer:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+      - run: flutter config --enable-web
       - run: flutter pub get
-      - name: Build Unsigned iOS App
-        run: flutter build ios --release --no-codesign
-      - name: Package into downloadable .ipa file
-        run: |
-          mkdir -p Payload
-          cp -r build/ios/iphoneos/Runner.app Payload/
-          zip -r NovaCalculator-iOS.ipa Payload
-      - uses: actions/upload-artifact@v4
+      - run: flutter build web --release --base-href "/nova-calculator/"
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          name: iPhone-IPA
-          path: NovaCalculator-iOS.ipa
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/web
